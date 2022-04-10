@@ -3,8 +3,7 @@ import sqlite3 from 'sqlite3'
 const treeTable = 'trees'
 const characterTable = 'characters'
 
-const db = new sqlite3.Database(':memory:')
-console.log('okok')
+const db = new sqlite3.Database('DB/trees.db')
 
 db.serialize(() => {
     db.exec(`CREATE TABLE IF NOT EXISTS ${treeTable} (
@@ -19,9 +18,9 @@ db.serialize(() => {
         parent2 NUMBER,
         tree NUMBER
     )`)
-    db.exec(`INSERT INTO ${treeTable} (name) VALUES ('bob'), ('albert')`)
-    db.exec(`INSERT INTO ${characterTable} (firstname, lastname, tree) 
-    VALUES ('bob','morane',1),('abra','kadabra',1),('albert','couille',2)`)
+    // db.exec(`INSERT INTO ${treeTable} (name) VALUES ('bob'), ('albert')`)
+    // db.exec(`INSERT INTO ${characterTable} (firstname, lastname, tree) 
+    // VALUES ('bob','morane',1),('abra','kadabra',1),('albert','couille',2)`)
 })
 
 export const addTree = async function(name) {
@@ -29,7 +28,6 @@ export const addTree = async function(name) {
         db.serialize(function () {
             db.run(`INSERT INTO ${treeTable} (name) VALUES ('${name}')`, function (e) {
                 if(e) f(e)
-                console.log('New tree ID: ' + this.lastID)
                 s({id: this.lastID, name})
             })
         })
@@ -37,10 +35,12 @@ export const addTree = async function(name) {
 }
 
 export const getTrees = () => new Promise((s,f) => {
-    db.all('SELECT * FROM ' + treeTable, (e,data) => {
+    // const req = `SELECT ${treeTable}.id, ${treeTable}.name, count(DISTINCT ${characterTable}.id) as number FROM trees
+    // LEFT JOIN ${characterTable} ON ${treeTable}.id = ${characterTable}.tree GROUP BY ${characterTable}.tree`
+
+    db.all(`SELECT * FROM ${treeTable}`, (e,trees) => {
         if(e) f(e)
-        console.log("SELECT trees: %o", data)
-        s(data)
+        s(trees)
     })
 })
 
@@ -53,7 +53,7 @@ export const addCharacter = (tree, char) => {
             db.prepare(`INSERT INTO ${characterTable} (firstname, lastname, parent1, parent2, tree) VALUES (?,?,?,?,?)`)
             .run(char.firstname, char.lastname, char.parent1 || 0, char.parent2 || 0, tree, function (e) {
                 if(e) f(e)
-                console.log('New character ID: ' + this.lastID)
+                // console.log('New character ID: ' + this.lastID)
                 s({id: this.lastID, char})
             }).finalize()
         })

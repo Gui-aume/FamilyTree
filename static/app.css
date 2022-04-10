@@ -7,6 +7,10 @@
 /*Now the CSS*/
 * {margin: 0; padding: 0;}
 
+#treeBody {
+	margin-top: 30px;
+}
+
 .tree{
 	width:5000px;
 }

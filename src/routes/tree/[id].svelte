@@ -5,6 +5,9 @@
             {id, firstname,lastname,parent1,parent2}
         ]
     */
+    import Avatar from '/src/components/Avatar.svelte'
+    import ChildTree from '/src/components/ChildTree.svelte'
+
     // export let tree
     export let characters
 
@@ -14,58 +17,35 @@
     let parent1
     let parent2
     let siblings
-    let childs
 
     let files = []
     let form = {
         firstname:'', lastname:'', parent1:0, parent2:0
     }
 
-    const getSiblings = char => characters.filter(c => c.id !== char.id && c.parent1 === char.parent1 && c.parent2 === char.parent2)
-
-    const getChilds = id => characters.filter(c => c.parent1 === id || c.parent2 === id)
-
-    const displayChar = char => `<h3><img src='/static/default.jpg'><br />${char.firstname} ${char.lastname}</h3>`
-
-    const displayBothChar = (char1, char2) => `<h3><img src='/static/default.jpg'> <img src='/static/default.jpg'><br /><br />
-        ${char1.firstname} ${char1.lastname} & ${char2.firstname} ${char2.lastname}</h3>`
-
-    const onSelect = () => {
+    // Refresh tree when selected change (even from childs)
+    $: if (selected) {
         currentChar = characters.find(c => c.id === selected)
+        
         parent1 = currentChar && characters.find(c => c.id === currentChar.parent1)
         parent2 = currentChar && characters.find(c => c.id === currentChar.parent2)
+
         siblings = characters.filter(c => c.id !== currentChar.id && c.parent1 === currentChar.parent1 && c.parent2 === currentChar.parent2)
-        childs = child_tree(currentChar.id)
     }
 
-
-    const child_tree = id => {
-        let tree_list = ''
-
-        const childList = getChilds(id)
-
-        if(childList.length > 0) {
-            tree_list = '<ul>'
-            childList.forEach(c => {
-                tree_list += `<li>${displayChar(c)}</li>`
-                tree_list += child_tree(c.id)
-            })
-            tree_list += '</ul>'
-        }
-        return tree_list
-    }
-
-
+    // Validate the form when adding a new char
     const validateForm = e => {
         e.preventDefault()
 
-        if(!form.firstname && !form.lastname) return
+        if(!form.firstname) return
         
-        // console.log(files)
-        // if(files[0]?.size >= 4000000) {
-        //     console.log('file too big')
-        //     return
-        // }
+        console.log(files)
+        if(files[0]?.size >= 4000000) {
+            console.log('file too big')
+            return
+        }
+
+        return
 
         fetch(window.location.href, {
             method: 'POST',
@@ -107,72 +87,37 @@
 	</form>
 </div>
 
-<div id='tree'>
-    <h1>TREE</h1>
-    <select bind:value={selected} on:change={onSelect} name="Afficher" size="1">
+<center id='treeBody'>
+    <!-- Select for active character -->
+    <label for='character'>Select a Character</label><select id='character' bind:value={selected} name="Afficher" size="1">
         <option style="display:none"></option>
         {#each characters as perso}
             <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
         {/each}
     </select>
-    {#if currentChar}
-        <center><h2>{currentChar.firstname} {currentChar.lastname}</h2></center>
 
+    <!-- Show the tree -->
+    {#if currentChar}
         <div class='tree'>
-        <!-- Get parents -->
+        <!-- Get parents & siblings (no half-siblings) -->
         {#if currentChar?.parent1 > 0 || currentChar?.parent2 > 0}
             <ul><li>
-            {#if currentChar?.parent1 > 0 && currentChar?.parent2 > 0}
-                {@html displayBothChar(parent1, parent2)}
-            {:else}
-                {@html displayChar(currentChar?.parent1 > 0 ? parent1 : parent2)}
-            {/if}
-
-            {#if siblings?.length > 0}
+                <Avatar char1={parent1} char2={parent2} bind:selected />
                 <ul>
-                {#each siblings as sibling}
-                    <li>{@html displayChar(sibling)}</li>
-                    {@html child_tree(sibling.id)}
-                {/each}
-                <li>{@html displayChar(currentChar)}
-                    {#if childs?.length > 0}
-                        {@html childs}
+                    {#if siblings?.length > 0}
+                        {#each siblings as sibling}
+                            <ChildTree parentID={sibling.id} characters={characters} bind:selected />
+                        {/each}
                     {/if}
-                </li>
+                    <ChildTree parentID={currentChar.id} characters={characters} bind:selected />
                 </ul>
-            {:else}
-                <ul><li>{@html displayChar(currentChar)}
-                    {#if childs?.length > 0}
-                        {@html childs}
-                    {/if}
-                </li></ul>
-            {/if}
-            
             </li></ul>
         {:else}
-            <ul><li>{@html displayChar(currentChar)}
-                {#if childs?.length > 0}
-                    {@html childs}
-                {/if}
-            </li></ul>
+        <!-- No parents & siblings -->
+            <ul>
+                <ChildTree parentID={currentChar.id} characters={characters} bind:selected />
+            </ul>
         {/if}
         </div>
     {/if}
-</div>
-
-
-<!--
-parents = <h3>Avatar<br />Nom Prénom</h3>
-both_parents = <h3>Avatar Avatar<br /><br />Nom Prénom et Nom Prénom</h3>
-arbre_childs=<ul><li><h3>Avatar<br />Nom Prénom</h3><ul>Childs</ul></li></ul>
-arbre_fratrie=<ul><li><h3>Avatar<br />Nom Prénom<ul>Childs</ul></li>
-
-
-si parents:
-    si fratrie:
-        arbre_fratrie.="<li>".$name.$arbre_childs."</li></ul>"
-    sinon:
-        <ul><li>".$name.$arbre_childs."</li></ul>
-sinon:
-    <div class='tree'><ul><li>".$name.$arbre_childs."</li></ul>    
--->
+</center>

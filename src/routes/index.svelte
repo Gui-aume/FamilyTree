@@ -5,7 +5,7 @@
     export let trees
 
     let TreeName
-
+    
     // Need to refresh => find a solution
     const onprout = () => {
         fetch('/', {
@@ -16,22 +16,23 @@
             body: JSON.stringify({
                 name: TreeName
             })
+        }).then(res => {
+            if(res.status === 200)
+                location.reload()
+            else console.error(res)
         })
         TreeName = ''
     }
 </script>
 
-<h1>Arbres</h1>
-
+<center id='treeBody'>
 <form>
-    <input type='text' name='name' id='name' placeholder="Nom de l'arbre" bind:value={TreeName} />
+    <label for='treename'>Ajouter un Arbre: </label><input id='treename' type='text' name='name' placeholder="Nom de l'arbre" bind:value={TreeName} />
     <button on:click={onprout}>Prout</button>
 </form>
-
+<br />
 <ul>{#each trees as tree}
     <li><a href='/tree/{tree.id}'>{tree.name}</a></li>
 {/each}</ul>
 
-<hr>
-<h3>Welcome to SvelteKit</h3>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+</center>

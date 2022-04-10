@@ -3,8 +3,8 @@ import {addCharacter, getCharacters} from '$lib/database.js';
 export async function get({ params, request }) {
     // `params.id` comes from [id].js => tree id
     
-    const reqSymbol = Object.getOwnPropertySymbols(request)[1]
-    console.log(request[reqSymbol].method)
+    // const reqSymbol = Object.getOwnPropertySymbols(request)[1]
+    // console.log(request[reqSymbol].method)
 
     try {
         const characters = await getCharacters(params.id)
@@ -14,8 +14,9 @@ export async function get({ params, request }) {
             body: { tree: params.id, characters }
         }
     } catch (e) {
+        console.error(e)
         return {
-            status: 404
+            status: 500
         }
     }
 }
@@ -26,13 +27,9 @@ export async function post({ params, request }) {
         const data = await request.json()
         if(data.firstname) {
             const newCharacter = await addCharacter(params.id, data)
-            return {
-                status: 200,
-            }
+            return { status: 200 }
         }
-        return {
-            status: 400,
-        }
+        return { status: 400 }
     } catch (e) {
         console.error(e)
         return {

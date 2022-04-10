@@ -1,7 +1,2 @@
-<nav>
-    <a href="/">Home</a>
-    <a href="/about">About</a>
-    <a href="/settings">Settings</a>
-  </nav>
-  
-  <slot></slot>
+<center><h1><a href="/">Arbre Généalogique</a></h1></center>
+<slot></slot>
