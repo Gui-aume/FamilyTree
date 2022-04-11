@@ -16,11 +16,9 @@ db.serialize(() => {
         lastname VARCHAR(50),
         parent1 NUMBER,
         parent2 NUMBER,
-        tree NUMBER
+        tree NUMBER,
+        ext VARCHAR(10)
     )`)
-    // db.exec(`INSERT INTO ${treeTable} (name) VALUES ('bob'), ('albert')`)
-    // db.exec(`INSERT INTO ${characterTable} (firstname, lastname, tree) 
-    // VALUES ('bob','morane',1),('abra','kadabra',1),('albert','couille',2)`)
 })
 
 export const addTree = async function(name) {
@@ -44,14 +42,24 @@ export const getTrees = () => new Promise((s,f) => {
     })
 })
 
+export const deleteTree = id => new Promise((s,f) => {
+    // TODO: Supprimer les characters de l'arbre
+    db.serialize(() => {
+        db.exec(`DELETE FROM ${characterTable} WHERE tree=${id}`, e => { if(e) f() })
+        db.exec(`DELETE FROM ${treeTable} WHERE id=${id}`, e => {
+            if(e) f()
+            s()
+        })
+    })
+})
+
 export const addCharacter = (tree, char) => {
-    console.log('Add : %o in %d', char, tree )
     if(!tree && !char) return
 
     return new Promise((s,f) => {
         db.serialize(function () {
-            db.prepare(`INSERT INTO ${characterTable} (firstname, lastname, parent1, parent2, tree) VALUES (?,?,?,?,?)`)
-            .run(char.firstname, char.lastname, char.parent1 || 0, char.parent2 || 0, tree, function (e) {
+            db.prepare(`INSERT INTO ${characterTable} (firstname, lastname, parent1, parent2, tree, ext) VALUES (?,?,?,?,?,?)`)
+            .run(char.firstname, char.lastname, char.parent1 || 0, char.parent2 || 0, tree, char.ext, function (e) {
                 if(e) f(e)
                 // console.log('New character ID: ' + this.lastID)
                 s({id: this.lastID, char})
@@ -65,5 +73,12 @@ export const getCharacters = tree => new Promise((s,f) => {
         if(e) f(e)
         // console.log("Characters in tree %d : %o", tree, data)
         s(data)
+    })
+})
+
+export const getTreeExists = id => new Promise((s,f) => {
+    db.all(`SELECT EXISTS(SELECT id FROM ${treeTable} WHERE id=${id}) AS exist`, (e, data) => {
+        if(e) f(e)
+        s(data?.length > 0 && data[0].exist)
     })
 })

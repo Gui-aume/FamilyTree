@@ -12,16 +12,12 @@
     export let characters
 
     let selected
+    let editing = false
     
     let currentChar
     let parent1
     let parent2
     let siblings
-
-    let files = []
-    let form = {
-        firstname:'', lastname:'', parent1:0, parent2:0
-    }
 
     // Refresh tree when selected change (even from childs)
     $: if (selected) {
@@ -33,70 +29,79 @@
         siblings = characters.filter(c => c.id !== currentChar.id && c.parent1 === currentChar.parent1 && c.parent2 === currentChar.parent2)
     }
 
-    // Validate the form when adding a new char
-    const validateForm = e => {
-        e.preventDefault()
+    const onEdit = () => {
+        editing = !editing
+    }
 
-        if(!form.firstname) return
+    const sendEdit = () => {
         
-        console.log(files)
-        if(files[0]?.size >= 4000000) {
-            console.log('file too big')
-            return
-        }
-
-        return
-
-        fetch(window.location.href, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ ...form })
-        }).then(res => {
-            if(res.status === 200)
-                location.reload()
-            else console.error(res)
-        })
     }
 
 </script>
 
+<!-- FORM TO ADD A NEW CHARACTER -->
 <div class="form">
 	<h2>Ajouter un personnage</h2>
 	
-	<form on:submit={validateForm} enctype="multipart/form-data">
-		<label for='file'>Fichier: </label><input bind:files type='file' name='file' id='file'>
-        <label for='name'>Nom: </label><input type="text" name="nom" bind:value={form.lastname} />
-		<label for='prenom'>Prénom: </label><input type="text" name="prenom" bind:value={form.firstname} />
+	<form method="post" enctype="multipart/form-data">
+		<label for='file'>Fichier: </label><input type='file' name='file' id='file'>
+        <label for='lastname'>Nom: </label><input type="text" name='lastname' />
+		<label for='firstname'>Prénom: </label><input type="text" name='firstname' />
         <label for='parent1'>Parent 1: </label>
-        <select bind:value={form.parent1} name="parent1" size="1">
+        <select name="parent1" size="1">
 			<option value="0"> --- </option>
 			{#each characters as perso}
 				<option value={perso.id}>{perso.firstname} {perso.lastname}</option>
             {/each}
 		</select>
         <label for='parent1'>Parent 2: </label>
-        <select bind:value={form.parent2} name="parent2" size="1">
+        <select name="parent2" size="1">
 			<option value="0"> --- </option>
 			{#each characters as perso}
                 <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
             {/each}
 		</select>
-		<input type="submit" name="character" value="Submit" />
+		<input type="submit" value="Submit" />
 	</form>
 </div>
 
 <center id='treeBody'>
-    <!-- Select for active character -->
+    <!-- SELECT ACTIVE CHARACTER -->
     <label for='character'>Select a Character</label><select id='character' bind:value={selected} name="Afficher" size="1">
         <option style="display:none"></option>
         {#each characters as perso}
             <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
         {/each}
     </select>
+    {#if selected}
+        <button id='editButton' on:click={onEdit}>{editing? 'Cacher' : 'Editer'}</button>
+    {/if}
 
-    <!-- Show the tree -->
+    <!-- EDIT FORM OF SELECTED CHAR -->
+    {#if editing}
+        <div>
+            Prénom: <input type='text' bind:value={currentChar.firstname} />
+            Nom: <input type='text' bind:value={currentChar.lastname} />
+            Parent1:
+            <select bind:value={currentChar.parent1} name="parent1" size="1">
+                <option value="0"> --- </option>
+                {#each characters.filter(c => c.id !== currentChar.id && (c.id !== currentChar.parent2 || currentChar.parent2 === 0)) as perso}
+                    <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
+                {/each}
+		    </select>
+            Parent2:
+            <select bind:value={currentChar.parent2} name="parent2" size="1">
+                <option value="0"> --- </option>
+                {#each characters.filter(c => c.id !== currentChar.id && (c.id !== currentChar.parent1 || currentChar.parent1 === 0)) as perso}
+                    <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
+                {/each}
+		    </select>
+            <input type='file' name='file' />
+            <input type='submit' value='Save' />
+        </div>
+    {/if}
+
+    <!-- SHOW THE TREE FROM SELECTED CHARACTER -->
     {#if currentChar}
         <div class='tree'>
         <!-- Get parents & siblings (no half-siblings) -->

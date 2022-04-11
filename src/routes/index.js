@@ -1,4 +1,4 @@
-import {addTree, getTrees} from '$lib/database.js';
+import {addTree, getTrees, deleteTree} from '$lib/database.js';
 
 export async function get({request}) {
     // const reqSymbol = Object.getOwnPropertySymbols(request)[1]
@@ -27,6 +27,18 @@ export async function post({ request }) {
     return {
         status: 400
     }
-   
-    
+}
+
+export async function del({ request }) {
+    const data = await request.json()
+
+    if(data.tree) {
+        try {
+            await deleteTree(data.tree)
+            return { status: 200 }
+        } catch (e) {
+            console.error(e)
+        }
+    } else 
+        return {status: 400}
 }
