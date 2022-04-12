@@ -34,7 +34,21 @@
     }
 
     const sendEdit = () => {
-        
+        // TODO: create a character.js to handle the post request
+        fetch('/character/' + currentChar.id, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                currentChar
+            })
+        }).then(res => {
+            // TODO: faire un truc sympa (bloquer l'envoi du formulaire à l'infini/petit message de validation ?)
+            if(res.status === 200)
+                console.log('Done')
+            else console.error(res)
+        })
     }
 
 </script>
@@ -97,7 +111,10 @@
                 {/each}
 		    </select>
             <input type='file' name='file' />
-            <input type='submit' value='Save' />
+
+            <!-- TODO : block submit button if nothing is edited ? -->
+        
+            <input type='submit' value='Save' on:click={sendEdit} />
         </div>
     {/if}
 
