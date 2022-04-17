@@ -24,6 +24,7 @@
         TreeName = ''
     }
 
+    // IMPROVMENT: remove all portraits for this Tree
     const deleteTree = e => {
         if(!window.confirm('Do you really want to delete the tree ?')) return
         

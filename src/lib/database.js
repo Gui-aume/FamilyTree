@@ -43,13 +43,28 @@ export const getTrees = () => new Promise((s,f) => {
 })
 
 export const deleteTree = id => new Promise((s,f) => {
-    // TODO: Supprimer les characters de l'arbre
+    // delete characters of the tree, then the tree
     db.serialize(() => {
         db.exec(`DELETE FROM ${characterTable} WHERE tree=${id}`, e => { if(e) f() })
         db.exec(`DELETE FROM ${treeTable} WHERE id=${id}`, e => {
             if(e) f()
             s()
         })
+    })
+})
+
+export const getCharacters = tree => new Promise((s,f) => {
+    db.all(`SELECT * FROM ${characterTable} WHERE tree=${tree}`, (e,data) => {
+        if(e) f(e)
+        // console.log("Characters in tree %d : %o", tree, data)
+        s(data)
+    })
+})
+
+export const getExt = id => new Promise((s,f) => {
+    db.all(`SELECT ext FROM ${characterTable} WHERE id=${id}`, (e, data) => {
+        if(e) f(e)
+        s(data?.length > 0 ? data[0] : undefined)
     })
 })
 
@@ -68,11 +83,42 @@ export const addCharacter = (tree, char) => {
     })
 }
 
-export const getCharacters = tree => new Promise((s,f) => {
-    db.all(`SELECT * FROM ${characterTable} WHERE tree=${tree}`, (e,data) => {
+export const getChar = id => new Promise((s,f) => {
+    db.all(`SELECT * FROM ${characterTable} WHERE id=${id}`, (e, data) => {
         if(e) f(e)
-        // console.log("Characters in tree %d : %o", tree, data)
-        s(data)
+        s(data?.length > 0 ? data[0] : undefined)
+    })
+})
+
+
+export const updateChar = (id, newItem) => new Promise((s,f) => {
+    db.serialize(() => {
+        // console.log(newItem)
+        const query = db.prepare(`UPDATE ${characterTable} SET firstname=?, lastname=?, parent1=?, parent2=? WHERE id=?`)
+        query.run(newItem.firstname, newItem.lastname, newItem.parent1 || 0, newItem.parent2 || 0, id, e => {
+            if(e) f(e)
+            s()
+        })
+        .finalize()
+    })
+})
+
+export const deleteChar = id => new Promise((s,f) => {
+    db.serialize(() => {
+        db.exec(`DELETE FROM ${characterTable} WHERE id=${id}`, e => {
+            if(e) f()
+            s()
+        })
+    })
+})
+
+export const updatePortrait = (id, ext) => new Promise((s,f) => {
+    db.serialize(() => {
+        const query = db.prepare(`UPDATE ${characterTable} SET ext=? WHERE id=?`)
+        query.run(ext, id, e => {
+            if(e) f(e)
+            s()
+        }).finalize()
     })
 })
 

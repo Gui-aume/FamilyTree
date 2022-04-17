@@ -32,12 +32,15 @@ export async function post({ request }) {
 export async function del({ request }) {
     const data = await request.json()
 
+    // MUST REMOVE ALL PORTRAITS 
+
     if(data.tree) {
         try {
             await deleteTree(data.tree)
             return { status: 200 }
         } catch (e) {
             console.error(e)
+            return {status: 500}
         }
     } else 
         return {status: 400}

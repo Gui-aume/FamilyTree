@@ -1,0 +1,4 @@
+- Retirer le fichier editForm ou trouver un moyen pour refresh correctement "characters" depuis ce fichier
+- Supprimer les portraits à la suppression d'un arbre + d'un character
+- Finir la suppression d'un caractere
+- Ajouter le check pour éviter d'ajouter un enfant comme parent côté serveur avant insertion en DB

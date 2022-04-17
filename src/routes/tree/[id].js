@@ -1,6 +1,5 @@
-import { mkdir, stat, writeFile} from 'fs/promises'
-import { Buffer } from 'buffer'
 import {addCharacter, getCharacters, getTreeExists} from '$lib/database.js'
+import { savePortrait } from '../../lib/utils'
 
 export async function get({ params }) {
     // `params.id` comes from [id].js => tree id
@@ -33,30 +32,6 @@ export async function get({ params }) {
     }
 }
 
-const savePortrait = async (file, filename, dir='src/portraits') => {
-    // Create the dir if it doesn't exist
-    if(!file || !filename) return
-
-    let dirExists = false
-    try {
-        await stat(dir)
-        dirExists = true
-    } catch (e) {
-        if(e.code === 'ENOENT') {
-            try{
-                await mkdir(dir)
-                dirExists = true
-            } catch (e) {
-                console.error(e)
-            }
-        } else {
-            console.error(e)
-        }
-    }
-    if(dirExists)
-        await writeFile(`${dir}/${filename}`, Buffer.from(await file.arrayBuffer()))
-}
-
 export async function post({ params, request }) {
     // params contains the url params, here params.id = tree ID
 
@@ -72,9 +47,9 @@ export async function post({ params, request }) {
             if(item.file) {
                 item.ext = item.file.name.split('.').pop()
             }
+            ///// TODO : empêcher de mettre un enfant comme parent (ça fout le sbeul en mode infinite loop)
             const newCharacter = await addCharacter(params.id, item)
-            console.log('Add: %o', newCharacter)
-
+            
             // Write file async if it exists
             if(newCharacter.id && item.file) {
                 const dir = 'src/portraits/' + params.id
