@@ -4,12 +4,6 @@
     import Avatar from '../../components/Avatar.svelte'
     import ChildTree from '../../components/ChildTree.svelte'
 
-    // populated with data from the endpoint
-    /*
-        [
-            {id, firstname,lastname,parent1,parent2}
-        ]
-    */
     export let characters
     export let tree
     
@@ -48,13 +42,12 @@
             <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
         {/each}
     </select>
-    
-    {#if selected}
-        <EditForm bind:selected bind:characters />
-    {/if}
+
+    <!-- EDIT FORM OF SELECTED CHAR -->
+    <EditForm bind:selected bind:characters />
 
     <!-- SHOW THE TREE FROM SELECTED CHARACTER -->
-    {#if currentChar}
+    {#if selected && currentChar}
         <div class='tree'>
         <!-- Get parents & siblings (no half-siblings) -->
         {#if currentChar?.parent1 > 0 || currentChar?.parent2 > 0}

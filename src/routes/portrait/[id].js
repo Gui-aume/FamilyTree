@@ -1,4 +1,4 @@
-import { savePortrait } from '../../lib/utils'
+import { savePortrait } from '$lib/utils'
 import { getExt, updatePortrait } from '$lib/database.js'
 import { rm } from 'fs/promises'
 

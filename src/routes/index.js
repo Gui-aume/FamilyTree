@@ -1,4 +1,5 @@
-import {addTree, getTrees, deleteTree} from '$lib/database.js';
+import {addTree, getTrees, deleteTree} from '$lib/database.js'
+import { removeTreePortraits } from '$lib/utils'
 
 export async function get({request}) {
     // const reqSymbol = Object.getOwnPropertySymbols(request)[1]
@@ -32,10 +33,9 @@ export async function post({ request }) {
 export async function del({ request }) {
     const data = await request.json()
 
-    // MUST REMOVE ALL PORTRAITS 
-
     if(data.tree) {
         try {
+            await removeTreePortraits(data.tree)
             await deleteTree(data.tree)
             return { status: 200 }
         } catch (e) {

@@ -33,9 +33,8 @@
     }
 
     // parentNum : 1 ou 2
-    $: getPossibleParents = parentNum => {
-        // IMPROVMENT : remove grand childs and all descendants
-        const eligibles = characters.filter(c => {
+    $: getPossibleParents = parentNum =>
+        characters.filter(c => {
             if(c.id === selected) return false
 
             // remove the other parent from the list
@@ -45,10 +44,7 @@
 
             // childs can't be parents
             return avalaibleParent && !getAllChilds(selected).includes(c.id)
-            return c.parent1 !== selected && c.parent2 !== selected && avalaibleParent
         })
-        return eligibles
-    }
     
     const sendEdit = () => {
         // Disable edit button
@@ -77,36 +73,37 @@
             method: 'DELETE'
         }).then(res => {
             if(res.status === 200) {
-                const index = characters.findIndex(c => c.id === selected)
-                delete characters[index]
+                characters = characters.filter(c => c.id !== selected)
+                selected = undefined
             }
         }).catch(console.error)
     }
 
 </script>
 
-<!-- EDIT FORM OF SELECTED CHAR -->
-<button id='editButton' on:click={onEdit}>{editing? 'Cacher' : 'Editer'}</button>
-<button id='deleteButton' on:click={onDelete}>Supprimer</button>
+{#if selected}
+    <button id='editButton' on:click={onEdit}>{editing? 'Cacher' : 'Editer'}</button>
+    <button id='deleteButton' on:click={onDelete}>Supprimer</button>
 
-{#if editing}
-<div>
-    Prénom: <input type='text' bind:value={editedChar.firstname} />
-    Nom: <input type='text' bind:value={editedChar.lastname} />
-    Parent1:
-    <select bind:value={editedChar.parent1} name="parent1" size="1">
-        <option value="0"> --- </option>
-        {#each getPossibleParents(1) as perso}
-            <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
-        {/each}
-    </select>
-    Parent2:
-    <select bind:value={editedChar.parent2} name="parent2" size="1">
-        <option value="0"> --- </option>
-        {#each getPossibleParents(2) as perso}
-            <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
-        {/each}
-    </select>
-    <input type='submit' value='Save' on:click={sendEdit} disabled={sendingEdit} />
-</div>
+    {#if editing}
+    <div>
+        Prénom: <input type='text' bind:value={editedChar.firstname} />
+        Nom: <input type='text' bind:value={editedChar.lastname} />
+        Parent1:
+        <select bind:value={editedChar.parent1} name="parent1" size="1">
+            <option value="0"> --- </option>
+            {#each getPossibleParents(1) as perso}
+                <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
+            {/each}
+        </select>
+        Parent2:
+        <select bind:value={editedChar.parent2} name="parent2" size="1">
+            <option value="0"> --- </option>
+            {#each getPossibleParents(2) as perso}
+                <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
+            {/each}
+        </select>
+        <input type='submit' value='Save' on:click={sendEdit} disabled={sendingEdit} />
+    </div>
+    {/if}
 {/if}

@@ -53,7 +53,7 @@ export async function post({ params, request }) {
             // Write file async if it exists
             if(newCharacter.id && item.file) {
                 const dir = 'src/portraits/' + params.id
-                savePortrait(item.file, `${newCharacter.id}.${item.ext}`,dir)
+                savePortrait(item.file, `${newCharacter.id}.${item.ext}`, dir)
             }
         }
         return {

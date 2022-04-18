@@ -1,7 +1,10 @@
-import { mkdir, stat, writeFile} from 'fs/promises'
+import { mkdir, rm, stat, writeFile} from 'fs/promises'
 import { Buffer } from 'buffer'
+import { getChar } from '$lib/database'
 
-export const savePortrait = async (file, filename, dir='src/portraits') => {
+const defaultDir = 'src/portraits'
+
+export const savePortrait = async (file, filename, dir=defaultDir) => {
     // Create the dir if it doesn't exist
     if(!file || !filename) return
 
@@ -23,4 +26,29 @@ export const savePortrait = async (file, filename, dir='src/portraits') => {
     }
     if(dirExists)
         await writeFile(`${dir}/${filename}`, Buffer.from(await file.arrayBuffer()))
+}
+
+export const removePortrait = async id => {
+    const item = await getChar(id)
+
+    // no item found or not file
+    if(!item?.ext) return
+
+    const path = `${defaultDir}/${item.tree}/${item.id}.${item.ext}`
+
+    try {
+        await rm(path, { force: true })
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+export const removeTreePortraits = async tree => {
+    const path = defaultDir + '/' + tree
+
+    try {
+        await rm(path, { recursive:true })
+    } catch(e) {
+        console.error(e)
+    }
 }
