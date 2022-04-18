@@ -1,7 +1,8 @@
 <script>
-    import CreateForm from '/src/components/CreateForm.svelte'
-    import Avatar from '/src/components/Avatar.svelte'
-    import ChildTree from '/src/components/ChildTree.svelte'
+    import CreateForm from '../../components/CreateForm.svelte'
+    import EditForm from '../../components/EditForm.svelte'
+    import Avatar from '../../components/Avatar.svelte'
+    import ChildTree from '../../components/ChildTree.svelte'
 
     // populated with data from the endpoint
     /*
@@ -14,8 +15,6 @@
     
     // selected character
     let selected
-    let editing = false
-    let sendingEdit = false
 
     // list characters printed in the tree to avoid infinite loop
     let treeCharList = []
@@ -25,85 +24,6 @@
     let parent1
     let parent2
     let siblings
-
-    // copy of selected character object for Edit form
-    let tmpChar
-
-    // toggle edit form
-    const onEdit = () => {
-        editing = !editing
-    }
-
-    // copy the selected character on selected change
-    const updateChar = () => {
-        tmpChar = {...characters.find(c => c.id === selected)}
-    }
-    // bind update function on selected change
-    $: selected, updateChar()
-
-    const sendEdit = () => {
-        // Disable edit button
-        sendingEdit = true
-        fetch('/character/' + selected, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ ...tmpChar })
-        }).then(res => {
-            if(res.status === 200) {
-                const index = characters.findIndex(c => c.id === selected)
-                characters[index] = tmpChar
-            }
-        }).catch(console.error)
-        .finally(() => {
-            sendingEdit = false
-            onEdit()
-        })
-    }
-
-    // delete char request
-    const onDelete = () => {
-        fetch('/character/' + selected, {
-            method: 'DELETE'
-        }).then(res => {
-            if(res.status === 200) {
-                const index = characters.findIndex(c => c.id === selected)
-                delete characters[index]
-            }
-        }).catch(console.error)
-    }
-
-    // Get all descent list
-    const getAllChilds = (id, familly=[]) => {
-        const childs = []
-        characters.forEach(c => {
-            if(c.id === id) return
-            if(familly.indexOf(c.id) < 0 && (c.parent1 === id || c.parent2 === id)) {
-                familly.push(c.id)
-                childs.push(c.id, ...getAllChilds(c.id, familly))
-            }
-        })
-        return childs
-    }
-
-    // parentNum : 1 ou 2
-    $: getPossibleParents = parentNum => {
-        // IMPROVMENT : remove grand childs and all descendants
-        const eligibles = characters.filter(c => {
-            if(c.id === selected) return false
-
-            // remove the other parent from the list
-            let avalaibleParent = false
-            if((parentNum === 1 && (tmpChar.parent2 === 0 || tmpChar.parent2 !== c.id)) || (parentNum === 2 && (tmpChar.parent1 === 0 || tmpChar.parent1 !== c.id)))
-                avalaibleParent = true
-
-            // childs can't be parents
-            return avalaibleParent && !getAllChilds(selected).includes(c.id)
-            return c.parent1 !== selected && c.parent2 !== selected && avalaibleParent
-        })
-        return eligibles
-    }
     
     // Refresh tree when selected change (even from childs)
     $: if (selected) {
@@ -128,32 +48,9 @@
             <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
         {/each}
     </select>
+    
     {#if selected}
-        <button id='editButton' on:click={onEdit}>{editing? 'Cacher' : 'Editer'}</button>
-        <button id='deleteButton' on:click={onDelete}>Supprimer</button>
-    {/if}
-
-    <!-- EDIT FORM OF SELECTED CHAR -->
-    {#if editing}
-        <div>
-            Prénom: <input type='text' bind:value={tmpChar.firstname} />
-            Nom: <input type='text' bind:value={tmpChar.lastname} />
-            Parent1:
-            <select bind:value={tmpChar.parent1} name="parent1" size="1">
-                <option value="0"> --- </option>
-                {#each getPossibleParents(1) as perso}
-                    <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
-                {/each}
-		    </select>
-            Parent2:
-            <select bind:value={tmpChar.parent2} name="parent2" size="1">
-                <option value="0"> --- </option>
-                {#each getPossibleParents(2) as perso}
-                    <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
-                {/each}
-		    </select>
-            <input type='submit' value='Save' on:click={sendEdit} disabled={sendingEdit} />
-        </div>
+        <EditForm bind:selected bind:characters />
     {/if}
 
     <!-- SHOW THE TREE FROM SELECTED CHARACTER -->
