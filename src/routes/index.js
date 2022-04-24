@@ -1,6 +1,7 @@
 import {addTree, getTrees, deleteTree} from '$lib/database.js'
 import { removeTreePortraits } from '$lib/utils'
 
+// send tree list
 export async function get({request}) {
     // const reqSymbol = Object.getOwnPropertySymbols(request)[1]
     // console.log(request[reqSymbol].method)
@@ -12,6 +13,7 @@ export async function get({request}) {
     }
 }
 
+// Adding a new tree
 export async function post({ request }) {
     const data = await request.json()
     if(data.name) {
@@ -30,6 +32,7 @@ export async function post({ request }) {
     }
 }
 
+// delete a tree
 export async function del({ request }) {
     const data = await request.json()
 

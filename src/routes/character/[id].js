@@ -15,6 +15,7 @@ export async function post({ params, request }) {
     }
 }
 
+// remove character
 export async function del({ params }) {
     const {id} = params
 

@@ -2,12 +2,14 @@
     <title>Arbres</title>
 </svelte:head>
 <script>
+    // Show the trees list
     export let trees
 
     let TreeName
     
-    // Need to refresh => find a solution
-    const validateForm = () => {
+    // Add a new tree
+    const validateForm = e => {
+        e.preventDefault()
         fetch('/', {
             method: 'POST',
             headers: {
@@ -24,9 +26,9 @@
         TreeName = ''
     }
 
-    // IMPROVMENT: remove all portraits for this Tree
+    // delete a tree
     const deleteTree = e => {
-        if(!window.confirm('Do you really want to delete the tree ?')) return
+        if(!window.confirm('Etes-vous sûr de vouloir supprimer l\arbre ?')) return
         
         const id = e.target.id 
         fetch('.', {
@@ -52,7 +54,14 @@
 </form>
 <br />
 <ul>{#each trees as tree}
-    <li><a href='/tree/{tree.id}'>{tree.name}</a> <button id={tree.id} on:click={deleteTree}>Delete</button></li>
+    <li><a href='/tree/{tree.id}'>{tree.name}</a> <button id={tree.id} on:click={deleteTree}>Supprimer</button></li>
 {/each}</ul>
 
 </center>
+
+<style>
+    li {
+        text-decoration: none;
+        padding: 5px;
+    }
+</style>

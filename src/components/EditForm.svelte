@@ -1,6 +1,7 @@
 <script>
+    // Edition or deletion form for selected character
     export let characters
-    export let selected
+    export let selected = undefined
 
     // copy of selected character object for Edit form
     let editedChar
@@ -12,7 +13,7 @@
         editing = !editing
     }
 
-    // copy the selected character on selected change
+    // copy the selected character on "selected" change
     const updateChar = () => {
         editedChar = {...characters.find(c => c.id === selected)}
     }
@@ -32,7 +33,8 @@
         return childs
     }
 
-    // parentNum : 1 ou 2
+    // remove descent and current char from parent list in form
+    // parentNum=1|2
     $: getPossibleParents = parentNum =>
         characters.filter(c => {
             if(c.id === selected) return false
@@ -69,6 +71,7 @@
 
     // delete char request
     const onDelete = () => {
+        if(!window.confirm('Etes-vous sûr de vouloir supprimer ?')) return
         fetch('/character/' + selected, {
             method: 'DELETE'
         }).then(res => {
@@ -107,3 +110,7 @@
     </div>
     {/if}
 {/if}
+
+<style>
+    div { margin-top: 5px; }    
+</style>

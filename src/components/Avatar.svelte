@@ -1,4 +1,6 @@
 <script>
+    // Manage the displayed box for character and portrait edition
+
     import Portrait from './Portrait.svelte'
     export let char1
     export let char2 = undefined
@@ -12,6 +14,7 @@
     $: isChar1 = !!char1
     $: isChar2 = !!char2
 
+    // character is selected by user
     $: isSelected = isChar1 && char1.id === selected
 
     const getPath = char => {
@@ -26,6 +29,7 @@
         selected = id
     }
 
+    // Send new portrait to server on file selection
     const newPortrait = () => {
         if(sendingFile && files?.length < 1) return
 

@@ -1,6 +1,7 @@
 <script>
     export let path
 
+    // Load default portrait
     function placeholder() {
         this.src = '/src/portraits/default.jpg'
     }

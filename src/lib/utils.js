@@ -43,6 +43,7 @@ export const removePortrait = async id => {
     }
 }
 
+// when a tree is deleted
 export const removeTreePortraits = async tree => {
     const path = defaultDir + '/' + tree
 

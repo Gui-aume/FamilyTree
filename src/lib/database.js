@@ -33,9 +33,6 @@ export const addTree = async function(name) {
 }
 
 export const getTrees = () => new Promise((s,f) => {
-    // const req = `SELECT ${treeTable}.id, ${treeTable}.name, count(DISTINCT ${characterTable}.id) as number FROM trees
-    // LEFT JOIN ${characterTable} ON ${treeTable}.id = ${characterTable}.tree GROUP BY ${characterTable}.tree`
-
     db.all(`SELECT * FROM ${treeTable}`, (e,trees) => {
         if(e) f(e)
         s(trees)
@@ -56,7 +53,6 @@ export const deleteTree = id => new Promise((s,f) => {
 export const getCharacters = tree => new Promise((s,f) => {
     db.all(`SELECT * FROM ${characterTable} WHERE tree=${tree}`, (e,data) => {
         if(e) f(e)
-        // console.log("Characters in tree %d : %o", tree, data)
         s(data)
     })
 })
@@ -76,7 +72,6 @@ export const addCharacter = (tree, char) => {
             db.prepare(`INSERT INTO ${characterTable} (firstname, lastname, parent1, parent2, tree, ext) VALUES (?,?,?,?,?,?)`)
             .run(char.firstname, char.lastname, char.parent1 || 0, char.parent2 || 0, tree, char.ext, function (e) {
                 if(e) f(e)
-                // console.log('New character ID: ' + this.lastID)
                 s({id: this.lastID, char})
             }).finalize()
         })
@@ -93,7 +88,6 @@ export const getChar = id => new Promise((s,f) => {
 
 export const updateChar = (id, newItem) => new Promise((s,f) => {
     db.serialize(() => {
-        // console.log(newItem)
         const query = db.prepare(`UPDATE ${characterTable} SET firstname=?, lastname=?, parent1=?, parent2=? WHERE id=?`)
         query.run(newItem.firstname, newItem.lastname, newItem.parent1 || 0, newItem.parent2 || 0, id, e => {
             if(e) f(e)

@@ -1,9 +1,11 @@
 <script>
+    // recursive generation of child tree boxes
     import Avatar from '/src/components/Avatar.svelte'
 
     export let parentID // id of the parent
     export let characters // list of all characters
     export let selected
+    // used by avatar to send a new portrait
     export let tree = undefined
 
     // keep track of printed characters to avoid infinite loop
