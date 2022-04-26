@@ -24,7 +24,7 @@
                 <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
             {/each}
 		</select>
-		<input type="submit" value="Submit" />
+		<input type="submit" value="Valider" />
 	</form>
 </div>
 

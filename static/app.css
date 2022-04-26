@@ -1,10 +1,8 @@
 * {margin: 0; padding: 0;}
 
-.tree{
-	width:5000px;
-}
 
 .tree ul {
+	display: flex;
 	padding-top: 20px;
 	position: relative;
 	transition: all 0.5s;

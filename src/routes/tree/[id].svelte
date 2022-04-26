@@ -52,7 +52,7 @@
     $: halfSiblings, siblings = getSiblings()
 
     // Sort characters with alphabetic order in select list
-    const orderChar = (a,b) => a.firstname > b.firstname ? 1 : a.firstname <= b.firstname ? -1 : 1
+    const orderChar = (a,b) => a.lastname === b.lastname ? a.firstname <= b.firstname ? -1 : 1 : a.lastname > b.lastname ? 1 : -1
 
 </script>
 
@@ -64,7 +64,7 @@
     <label for='character'>Select a Character</label><select id='character' bind:value={selected} name="Afficher" size="1">
         <option style='display:none'></option>
         {#each characters.sort(orderChar) as perso}
-            <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
+            <option value={perso.id}>{perso.lastname} {perso.firstname}</option>
         {/each}
     </select>
 

@@ -106,7 +106,7 @@
                 <option value={perso.id}>{perso.firstname} {perso.lastname}</option>
             {/each}
         </select>
-        <input type='submit' value='Save' on:click={sendEdit} disabled={sendingEdit} />
+        <input type='submit' value='Valider' on:click={sendEdit} disabled={sendingEdit} />
     </div>
     {/if}
 {/if}
